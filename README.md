@@ -31,11 +31,17 @@ Lack of a centralized, efficient, and secure system for managing land and proper
 - This system ensures efficient supply tracking, cost management, and inventory control in healthcare operations.
 
 - **UML Diagram**:![Activity diagram](https://github.com/user-attachments/assets/58c7d59b-16eb-4773-b5f1-14fa9909f24c)
-- This diagram illustrates the Healthcare Supply Chain Management Process Model, showing the complete workflow from supply request to delivery.
-- Database Integration: The diagram shows multiple points where your Oracle database system is accessed (checking stock levels, updating inventory)
-- Decision-Driven Process: The workflow includes a critical decision point that determines whether to procure new supplies or fulfill from existing stock.
-- Multi-Role Involvement: The process involves various stakeholders (Department Head, Inventory Coordinator, Procurement Manager, Finance Officer), reflecting real-world healthcare supply chain complexity.
-- Closed-Loop System: The process ensures inventory levels are always updated, maintaining data accuracy for future requests.
+- This diagram illustrates the Land & Property Registration Process Model, showing the complete workflow from application submission to registration approval.
+
+-Database Integration: The diagram highlights various stages where the Oracle database is accessed—such as storing user data, verifying land ownership, and updating registration records.
+
+-Decision-Driven Process: It includes key decision points like document verification and land ownership approval that determine whether a property can be successfully registered.
+
+-Multi-Role Involvement: The process involves multiple actors including the Landowner, Registration Officer, Surveyor, and Administrator—reflecting the real-world complexity of property registration systems.
+
+-Secure and Transparent Workflow: The model ensures all property data is validated and securely stored, promoting transparency and preventing fraud throughout the registration process.
+
+
 
 - **OEM Dashboard**:![sql1](https://github.com/user-attachments/assets/9ca95d38-f8cd-41d3-bcad-5484ecf4350f)
   ![sql3](https://github.com/user-attachments/assets/a16b5bc5-2b13-43e2-9b29-1f9212481608)
