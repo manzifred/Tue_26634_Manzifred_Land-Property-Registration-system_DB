@@ -5,18 +5,18 @@
 
 
 ## Introduction
-- **Student**: Shema Ken (26503)
+- **Student**:Manzi fred (26634)
 - **Group**: Tuesday
 - **Course**: Database Development with PL/SQL (INSY 8311)
 - **Lecturer**: Eric Maniraguha
 
 ## 📋 Problem Statement
- The project addresses inefficiencies in health care supply chain management by developing a PL/SQL-based Oracle database to automate procurement, track inventory, and enhance decision-making.
+Lack of a centralized, efficient, and secure system for managing land and property registration leads to delays, data inaccuracies, and potential fraud.
 ## 📊 Methodology
 - **Phase I**: Defined problem and presented objectives.
 - **Phase II**: Modeled order processing using UML.
 - **Phase III**: Designed logical data model with ER diagram.
-- **Phase IV**: Created pluggable database (Tues_26503_ShemaKen_HealthcareSupplyChain_DB).
+- **Phase IV**: Created pluggable database (Tues_26634_Manzifred__Land Property Registration_DB).
 - **Phase V**: Implemented tables and inserted realistic data.
 - **Phase VI**: Developed procedures for order processing and data retrieval.
 - **Phase VII**: Implemented triggers and auditing for security.
@@ -57,11 +57,11 @@
   ![interacton](https://github.com/user-attachments/assets/6d2abfd9-ede5-4dc7-bea6-fa569caad90c)
   ![trigger](https://github.com/user-attachments/assets/07444e3a-5348-466e-a72f-f1775c0f99a0)
   ![procedure](https://github.com/user-attachments/assets/75ed05ec-e917-45d6-9e83-8088e0dd47f7)
-- These images show Oracle SQL Developer in action, demonstrating the implementation of your Healthcare Supply Chain Management database project.
+- These images show Oracle SQL Developer in action, demonstrating the implementation of your land&property registration system database project.
 - GUI Development Environment: Professional Oracle SQL Developer interface
 - Complex PL/SQL: Advanced triggers, packages, and procedures
 - Business Rule Implementation: Sophisticated access control and validation
-- Real-world Application: Practical healthcare supply chain management features
+- Real-world Application: land&property registration system management features
 - These screenshots demonstrate a comprehensive, production-ready database system with advanced security, business logic, and data management capabilities suitable for healthcare supply chain operations.
 
 ## 📂 SQL Queries
@@ -289,7 +289,7 @@ END;
 - Created comprehensive audit logging system that tracks all database operations with user identification and timestamps.
 
 ## Conclusion
-The project demonstrates successful application of database design principles to solve real-world healthcare management challenges, resulting in a production-ready system that can significantly improve supply chain efficiency and decision-making processes.
+The Land and Property Registration System provides a reliable, transparent, and streamlined platform for managing property records and transactions. By digitizing the registration process, it enhances data accuracy, reduces processing time, and minimizes the risk of fraud—ultimately supporting better governance and user trust in land administration.
 
 ## References
 - Oracle PL/SQL Documentation
