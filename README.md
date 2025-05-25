@@ -26,13 +26,11 @@ Lack of a centralized, efficient, and secure system for managing land and proper
 
 - **ER Diagram**: ## 📸 Screenshots![Screenshot 2025-05-25 113012](https://github.com/user-attachments/assets/4f480d8c-e99a-4fe1-9015-d9bb918eced6)
 
-- This Entity-Relationship (ER) Diagram outlines a structured database for managing medical supplies in a healthcare setting. It tracks procurement, inventory, and usage across departments.
-- Key Relationships:
-- Vendors → Purchase Orders → Order Details → Medical Supplies → Inventory (procurement & stock flow).
-- Medical Supplies → Usage Tracking (monitors departmental usage).
-- This system ensures efficient supply tracking, cost management, and inventory control in healthcare operations.
+- The diagram follows proper ER modeling conventions with primary keys (red).
+-  foreign keys (blue), and clear relationship cardinalities.
+-  This system would support comprehensive land registration, ownership tracking, transaction management, and regulatory compliance.
 
-- **UML Diagram**:![Activity diagram](https://github.com/user-attachments/assets/58c7d59b-16eb-4773-b5f1-14fa9909f24c)
+- **UML Diagram**:![Screenshot 2025-05-25 113527](https://github.com/user-attachments/assets/b3389fd5-34d4-4f25-94ab-3c480bf630d7)
 - This diagram illustrates the Land & Property Registration Process Model, showing the complete workflow from application submission to registration approval.
 
 -Database Integration: The diagram highlights various stages where the Oracle database is accessed—such as storing user data, verifying land ownership, and updating registration records.
@@ -44,33 +42,32 @@ Lack of a centralized, efficient, and secure system for managing land and proper
 -Secure and Transparent Workflow: The model ensures all property data is validated and securely stored, promoting transparency and preventing fraud throughout the registration process.
 
 
+- **OEM Dashboard**:<img width="953" alt="sqlfred" src="https://github.com/user-attachments/assets/24e75eb7-a964-428f-b285-672d142728f4" />
+Topic: Land & Property Registration System
 
-- **OEM Dashboard**:![sql1](https://github.com/user-attachments/assets/9ca95d38-f8cd-41d3-bcad-5484ecf4350f)
-  ![sql3](https://github.com/user-attachments/assets/a16b5bc5-2b13-43e2-9b29-1f9212481608)
-  ![sql2](https://github.com/user-attachments/assets/6b77db26-1ada-4ade-897b-f4fd13a8943b)
-- These images show the Oracle SQL*Plus command-line interface demonstrating the creation and setup of your Healthcare Supply Chain Management database
-- Successful Elements: Pluggable database architecture setup, user creation and privilege management
-- Technical Challenges: File system path configuration issues that need resolution
-- Learning Outcomes: Demonstrates proper Oracle multitenant database setup procedures
-- Proper use of pluggable databases for application isolation
-- Correct sequence of database state management (MOUNT → OPEN → SAVE STATE)
-- User privilege management with DBA roles
-- Container-aware session management
-- These screenshots effectively document the database setup process for your healthcare supply chain project, showing both successful implementations and real-world troubleshooting scenarios that database administrators commonly encounter.
+Pluggable Database: landreg_pdb created for application-level isolation
+
+Admin User: landadmin created during PDB setup
+
+Application User: land_user granted required privileges (DBA, CONNECT, RESOURCE)
+
+File Management: Uses FILE_NAME_CONVERT for file path redirection
+
+State Management: Ensures PDB is automatically opened on restart
+Container-Aware Session Management: ALTER SESSION SET CONTAINER to work inside the new PDB
 
 
-
-- **Sample Query Output**:![table creation](https://github.com/user-attachments/assets/227fc53e-34f0-4870-a9b7-419d6f781b12)
-  ![insert data](https://github.com/user-attachments/assets/b07d659f-59ee-433b-b9a9-993b00bda3f9)
-  ![interacton](https://github.com/user-attachments/assets/6d2abfd9-ede5-4dc7-bea6-fa569caad90c)
-  ![trigger](https://github.com/user-attachments/assets/07444e3a-5348-466e-a72f-f1775c0f99a0)
-  ![procedure](https://github.com/user-attachments/assets/75ed05ec-e917-45d6-9e83-8088e0dd47f7)
+- **Sample Query Output**:![table creation]![WhatsApp Image 2025-05-25 at 11 21 42 AM](https://github.com/user-attachments/assets/d43bcf34-a528-45ae-8439-0604b76f8387)
+![WhatsApp Image 2025-05-25 at 11 21 19 AM (2)](https://github.com/user-attachments/assets/70a83d91-8eef-4d64-94ab-f674ccd56fdc)
+![WhatsApp Image 2025-05-25 at 11 21 19 AM](https://github.com/user-attachments/assets/8851ded4-07d6-4598-af81-9368532467fb)
+![WhatsApp Image 2025-05-25 at 11 21 19 AM (1)](https://github.com/user-attachments/assets/47cf0df9-88d5-40a8-b589-bbc46205f526)
+![WhatsApp Image 2025-05-25 at 11 21 20 AM](https://github.com/user-attachments/assets/633479a1-e4dd-4e91-981e-de09ab36088f)
 - These images show Oracle SQL Developer in action, demonstrating the implementation of your land&property registration system database project.
 - GUI Development Environment: Professional Oracle SQL Developer interface
 - Complex PL/SQL: Advanced triggers, packages, and procedures
 - Business Rule Implementation: Sophisticated access control and validation
 - Real-world Application: land&property registration system management features
-- These screenshots demonstrate a comprehensive, production-ready database system with advanced security, business logic, and data management capabilities suitable for healthcare supply chain operations.
+- These screenshots demonstrate a comprehensive, production-ready database system with advanced security, business logic, and data management capabilities suitable for land&Propoerty registration system operations.
 
 ## 📂 SQL Queries
 - **Table Creation and Data Insertion**:
