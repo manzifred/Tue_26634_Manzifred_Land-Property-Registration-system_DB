@@ -72,219 +72,235 @@ Container-Aware Session Management: ALTER SESSION SET CONTAINER to work inside t
 ## 📂 SQL Queries
 - **Table Creation and Data Insertion**:
 ```sql
- -- Table Creation for Healthcare Supply Chain Management
-CREATE TABLE Vendors (
-    VendorID NUMBER PRIMARY KEY,
-    VendorName VARCHAR2(100) NOT NULL,
-    ContactInfo VARCHAR2(200),
-    Address VARCHAR2(200)
+ -- -- Land & Property Registration System Database Schema
+
+CREATE TABLE Owners (
+    OwnerID NUMBER PRIMARY KEY,
+    FullName VARCHAR2(100) NOT NULL,
+    NationalID VARCHAR2(16) UNIQUE,
+    PhoneNumber VARCHAR2(20),
+    Email VARCHAR2(100)
 );
 
-CREATE TABLE MedicalSupplies (
-    SupplyID NUMBER PRIMARY KEY,
-    SupplyName VARCHAR2(100) NOT NULL,
-    Category VARCHAR2(50),
-    UnitPrice NUMBER CHECK (UnitPrice >= 0)
+CREATE TABLE Properties (
+    PropertyID NUMBER PRIMARY KEY,
+    OwnerID NUMBER,
+    PropertyType VARCHAR2(50),
+    Location VARCHAR2(200),
+    SizeInSqMeters NUMBER CHECK (SizeInSqMeters > 0),
+    RegistrationDate DATE,
+    FOREIGN KEY (OwnerID) REFERENCES Owners(OwnerID)
 );
 
-CREATE TABLE Inventory (
-    InventoryID NUMBER PRIMARY KEY,
-    SupplyID NUMBER UNIQUE,
-    QuantityInStock NUMBER CHECK (QuantityInStock >= 0),
-    LastUpdated DATE,
-    FOREIGN KEY (SupplyID) REFERENCES MedicalSupplies(SupplyID)
+CREATE TABLE Districts (
+    DistrictID NUMBER PRIMARY KEY,
+    DistrictName VARCHAR2(100) NOT NULL,
+    Region VARCHAR2(100)
 );
 
-CREATE TABLE Departments (
-    DepartmentID NUMBER PRIMARY KEY,
-    DepartmentName VARCHAR2(100) NOT NULL,
-    ManagerID NUMBER
+CREATE TABLE PropertyTransfer (
+    TransferID NUMBER PRIMARY KEY,
+    PropertyID NUMBER,
+    FromOwnerID NUMBER,
+    ToOwnerID NUMBER,
+    TransferDate DATE,
+    TransferReason VARCHAR2(200),
+    FOREIGN KEY (PropertyID) REFERENCES Properties(PropertyID),
+    FOREIGN KEY (FromOwnerID) REFERENCES Owners(OwnerID),
+    FOREIGN KEY (ToOwnerID) REFERENCES Owners(OwnerID)
 );
 
-CREATE TABLE PurchaseOrders (
-    OrderID NUMBER PRIMARY KEY,
-    VendorID NUMBER,
-    DepartmentID NUMBER,
-    OrderDate DATE NOT NULL,
-    TotalAmount NUMBER,
-    FOREIGN KEY (VendorID) REFERENCES Vendors(VendorID),
-    FOREIGN KEY (DepartmentID) REFERENCES Departments(DepartmentID)
+CREATE TABLE LandValuation (
+    ValuationID NUMBER PRIMARY KEY,
+    PropertyID NUMBER,
+    AssessedValue NUMBER CHECK (AssessedValue >= 0),
+    ValuationDate DATE,
+    FOREIGN KEY (PropertyID) REFERENCES Properties(PropertyID)
 );
 
-CREATE TABLE OrderDetails (
-    OrderDetailID NUMBER PRIMARY KEY,
-    OrderID NUMBER,
-    SupplyID NUMBER,
-    QuantityOrdered NUMBER CHECK (QuantityOrdered > 0),
-    UnitPrice NUMBER CHECK (UnitPrice >= 0),
-    FOREIGN KEY (OrderID) REFERENCES PurchaseOrders(OrderID),
-    FOREIGN KEY (SupplyID) REFERENCES MedicalSupplies(SupplyID)
+CREATE TABLE RegistrationAudit (
+    AuditID NUMBER PRIMARY KEY,
+    UserName VARCHAR2(50),
+    Operation VARCHAR2(20),
+    TableAffected VARCHAR2(50),
+    OperationDate DATE,
+    Status VARCHAR2(10)
 );
 
-CREATE TABLE UsageTracking (
-    UsageID NUMBER PRIMARY KEY,
-    SupplyID NUMBER,
-    DepartmentID NUMBER,
-    QuantityUsed NUMBER CHECK (QuantityUsed > 0),
-    UsageDate DATE,
-    FOREIGN KEY (SupplyID) REFERENCES MedicalSupplies(SupplyID),
-    FOREIGN KEY (DepartmentID) REFERENCES Departments(DepartmentID)
+CREATE TABLE Holidays (
+    HolidayID NUMBER PRIMARY KEY,
+    HolidayDate DATE UNIQUE,
+    Description VARCHAR2(100)
 );
 
--- Data Insertion
-INSERT INTO Vendors VALUES (1, 'MediCorp', 'contact@medicorp.com', '123 Kigali St');
-INSERT INTO Vendors VALUES (2, 'HealthSupplies Ltd', 'info@healthsupplies.rw', '456 Gisenyi Rd');
-
-INSERT INTO MedicalSupplies VALUES (1, 'Syringes', 'Equipment', 2.5);
-INSERT INTO MedicalSupplies VALUES (2, 'Paracetamol', 'Medicine', 0.1);
-
-INSERT INTO Inventory VALUES (1, 1, 1000, TO_DATE('2025-05-10', 'YYYY-MM-DD'));
-INSERT INTO Inventory VALUES (2, 2, 5000, TO_DATE('2025-05-10', 'YYYY-MM-DD'));
-
-INSERT INTO Departments VALUES (1, 'Cardiology', 101);
-INSERT INTO Departments VALUES (2, 'Pharmacy', 102);
-
-INSERT INTO PurchaseOrders VALUES (1, 1, 1, TO_DATE('2025-05-01', 'YYYY-MM-DD'), 2500);
-INSERT INTO PurchaseOrders VALUES (2, 2, 2, TO_DATE('2025-05-02', 'YYYY-MM-DD'), 500);
-
-INSERT INTO OrderDetails VALUES (1, 1, 1, 1000, 2.5);
-INSERT INTO OrderDetails VALUES (2, 2, 2, 5000, 0.1);
-
-INSERT INTO UsageTracking VALUES (1, 1, 1, 50, TO_DATE('2025-05-05', 'YYYY-MM-DD'));
-INSERT INTO UsageTracking VALUES (2, 2, 2, 100, TO_DATE('2025-05-06', 'YYYY-MM-DD'));
 ```
 - **Triggers**:
 ```sql
--- Create Holiday Reference Table
-CREATE TABLE Holidays (
-    HolidayDate DATE PRIMARY KEY,
-    HolidayName VARCHAR2(100)
+CREATE OR REPLACE TRIGGER trg_prevent_weekend_holiday_insert
+BEFORE INSERT ON land_registration
+FOR EACH ROW
+DECLARE
+    v_day VARCHAR2(10);
+    v_holiday_count NUMBER;
+BEGIN
+    -- Get the day of the week
+    SELECT TO_CHAR(:NEW.registration_date, 'DAY') INTO v_day FROM dual;
+
+    -- Check if it's Saturday or Sunday
+    IF TRIM(UPPER(v_day)) IN ('SATURDAY', 'SUNDAY') THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Insert not allowed on weekends.');
+    END IF;
+
+    -- Check if the date is in the HOLIDAYS table
+    SELECT COUNT(*) INTO v_holiday_count
+    FROM holidays
+    WHERE holiday_date = TRUNC(:NEW.registration_date);
+
+    IF v_holiday_count > 0 THEN
+        RAISE_APPLICATION_ERROR(-20002, 'Insert not allowed on public holidays.');
+    END IF;
+END;
+-- Audit Table
+CREATE TABLE property_delete_audit (
+    property_id       NUMBER,
+    deleted_by        VARCHAR2(50),
+    deleted_at        DATE,
+    reason            VARCHAR2(200)
 );
 
--- Insert Public Holidays for June 2025
-INSERT INTO Holidays VALUES (TO_DATE('2025-06-01', 'YYYY-MM-DD'), 'National Day');
-INSERT INTO Holidays VALUES (TO_DATE('2025-06-15', 'YYYY-MM-DD'), 'Independence Day');
-
--- Create Audit Table
-CREATE TABLE AuditLog (
-    AuditID NUMBER PRIMARY KEY,
-    UserID VARCHAR2(50),
-    ActionDate DATE,
-    Operation VARCHAR2(50),
-    Status VARCHAR2(20)
-);
-
--- Sequence for AuditID
-CREATE SEQUENCE AuditSeq START WITH 1 INCREMENT BY 1;
-
--- Compound Trigger for Restrictions and Auditing
-CREATE OR REPLACE TRIGGER SupplyChain_Restrictions
-FOR INSERT OR UPDATE OR DELETE ON MedicalSupplies
+-- Compound Trigger
+CREATE OR REPLACE TRIGGER trg_audit_property_deletion
+FOR DELETE ON property
 COMPOUND TRIGGER
-    v_Day VARCHAR2(10);
-    v_IsHoliday NUMBER;
+    TYPE t_property IS RECORD (
+        id property.property_id%TYPE,
+        username VARCHAR2(50)
+    );
+    TYPE t_property_list IS TABLE OF t_property;
+    v_deleted_properties t_property_list := t_property_list();
 
-    BEFORE STATEMENT IS
+    BEFORE EACH ROW IS
     BEGIN
-        -- Check if today is a weekday
-        SELECT TO_CHAR(SYSDATE, 'DY') INTO v_Day FROM DUAL;
-        IF v_Day IN ('MON', 'TUE', 'WED', 'THU', 'FRI') THEN
-            RAISE_APPLICATION_ERROR(-20004, 'Table manipulations not allowed on weekdays.');
-        END IF;
-
-        -- Check if today is a holiday in June 2025
-        SELECT COUNT(*) INTO v_IsHoliday
-        FROM Holidays
-        WHERE HolidayDate = TRUNC(SYSDATE)
-        AND EXTRACT(MONTH FROM HolidayDate) = 6
-        AND EXTRACT(YEAR FROM HolidayDate) = 2025;
-        IF v_IsHoliday > 0 THEN
-            RAISE_APPLICATION_ERROR(-20005, 'Table manipulations not allowed on holidays.');
-        END IF;
-    END BEFORE STATEMENT;
-
-    AFTER EACH ROW IS
-    BEGIN
-        -- Log the action
-        INSERT INTO AuditLog (AuditID, UserID, ActionDate, Operation, Status)
-        VALUES (AuditSeq.NEXTVAL, USER, SYSDATE, 
-                CASE 
-                    WHEN INSERTING THEN 'INSERT'
-                    WHEN UPDATING THEN 'UPDATE'
-                    WHEN DELETING THEN 'DELETE'
-                END, 'ALLOWED');
-    END AFTER EACH ROW;
+        v_deleted_properties.EXTEND;
+        v_deleted_properties(v_deleted_properties.COUNT).id := :OLD.property_id;
+        v_deleted_properties(v_deleted_properties.COUNT).username := USER;
+    END BEFORE EACH ROW;
 
     AFTER STATEMENT IS
     BEGIN
-        -- Additional auditing logic if needed
-        NULL;
+        FOR i IN 1 .. v_deleted_properties.COUNT LOOP
+            INSERT INTO property_delete_audit
+            VALUES (
+                v_deleted_properties(i).id,
+                v_deleted_properties(i).username,
+                SYSDATE,
+                'Manual deletion'
+            );
+        END LOOP;
     END AFTER STATEMENT;
-END SupplyChain_Restrictions;
-/
+END;
+-- Audit Table
+CREATE TABLE audit_log (
+    user_id     VARCHAR2(30),
+    action_time DATE,
+    operation   VARCHAR2(20),
+    table_name  VARCHAR2(50),
+    status      VARCHAR2(10)
+);
 
--- Problem Statement
--- The trigger ensures that no INSERT, UPDATE, or DELETE operations are performed on the MedicalSupplies table during weekdays or public holidays in June 2025. Auditing tracks all actions, enhancing security by logging user activities and enforcing access restrictions.
+-- Trigger
+CREATE OR REPLACE TRIGGER trg_audit_sensitive_update
+BEFORE UPDATE ON land_owner
+FOR EACH ROW
+DECLARE
+    v_user VARCHAR2(30) := USER;
+    v_status VARCHAR2(10) := 'ALLOWED';
+BEGIN
+    -- Restrict unauthorized users
+    IF v_user NOT IN ('ADMIN', 'LAND_OFFICER') THEN
+        v_status := 'DENIED';
+
+        INSERT INTO audit_log (user_id, action_time, operation, table_name, status)
+        VALUES (v_user, SYSDATE, 'UPDATE', 'land_owner', v_status);
+
+        RAISE_APPLICATION_ERROR(-20003, 'You are not authorized to update landowner records.');
+    END IF;
+
+    -- If allowed, log the operation
+    INSERT INTO audit_log (user_id, action_time, operation, table_name, status)
+    VALUES (v_user, SYSDATE, 'UPDATE', 'land_owner', v_status);
+END;
+
 ```
 - **Procedures**:
 ```sql
--- Package Specification
-CREATE OR REPLACE PACKAGE SupplyChain_Pkg AS
-    PROCEDURE FetchInventoryStatus(p_SupplyID IN NUMBER, p_Quantity OUT NUMBER);
-    FUNCTION CalculateTotalSpending(p_DepartmentID IN NUMBER) RETURN NUMBER;
-END SupplyChain_Pkg;
+CREATE OR REPLACE PACKAGE LandRegistry_Pkg AS
+    PROCEDURE FetchPropertySize(p_PropertyID IN NUMBER, p_Size OUT NUMBER);
+    FUNCTION CalculateTotalValueByOwner(p_OwnerID IN NUMBER) RETURN NUMBER;
+END LandRegistry_Pkg;
 /
+CREATE OR REPLACE PACKAGE BODY LandRegistry_Pkg AS
 
--- Package Body
-CREATE OR REPLACE PACKAGE BODY SupplyChain_Pkg AS
-    PROCEDURE FetchInventoryStatus(p_SupplyID IN NUMBER, p_Quantity OUT NUMBER) IS
-        CURSOR inv_cursor IS
-            SELECT QuantityInStock
-            FROM Inventory
-            WHERE SupplyID = p_SupplyID;
+    -- Procedure to get property size
+    PROCEDURE FetchPropertySize(p_PropertyID IN NUMBER, p_Size OUT NUMBER) IS
+        CURSOR size_cursor IS
+            SELECT SizeInSqMeters
+            FROM Properties
+            WHERE PropertyID = p_PropertyID;
     BEGIN
-        OPEN inv_cursor;
-        FETCH inv_cursor INTO p_Quantity;
-        IF inv_cursor%NOTFOUND THEN
-            RAISE_APPLICATION_ERROR(-20001, 'Supply ID not found.');
+        OPEN size_cursor;
+        FETCH size_cursor INTO p_Size;
+        IF size_cursor%NOTFOUND THEN
+            RAISE_APPLICATION_ERROR(-20010, 'Property not found.');
         END IF;
-        CLOSE inv_cursor;
+        CLOSE size_cursor;
     EXCEPTION
         WHEN OTHERS THEN
-            RAISE_APPLICATION_ERROR(-20002, 'Error fetching inventory: ' || SQLERRM);
-    END FetchInventoryStatus;
+            RAISE_APPLICATION_ERROR(-20011, 'Error fetching property size: ' || SQLERRM);
+    END FetchPropertySize;
 
-    FUNCTION CalculateTotalSpending(p_DepartmentID IN NUMBER) RETURN NUMBER IS
-        v_Total NUMBER;
+    -- Function to calculate total valuation for an owner
+    FUNCTION CalculateTotalValueByOwner(p_OwnerID IN NUMBER) RETURN NUMBER IS
+        v_TotalValue NUMBER;
     BEGIN
-        SELECT SUM(TotalAmount) OVER (PARTITION BY DepartmentID)
-        INTO v_Total
-        FROM PurchaseOrders
-        WHERE DepartmentID = p_DepartmentID;
-        RETURN NVL(v_Total, 0);
+        SELECT SUM(LV.AssessedValue)
+        INTO v_TotalValue
+        FROM LandValuation LV
+        JOIN Properties P ON LV.PropertyID = P.PropertyID
+        WHERE P.OwnerID = p_OwnerID;
+
+        RETURN NVL(v_TotalValue, 0);
     EXCEPTION
         WHEN NO_DATA_FOUND THEN
             RETURN 0;
         WHEN OTHERS THEN
-            RAISE_APPLICATION_ERROR(-20003, 'Error calculating spending: ' || SQLERRM);
-    END CalculateTotalSpending;
-END SupplyChain_Pkg;
+            RAISE_APPLICATION_ERROR(-20012, 'Error calculating total value: ' || SQLERRM);
+    END CalculateTotalValueByOwner;
+
+END LandRegistry_Pkg;
 /
-
--- Example DML Operation
-INSERT INTO UsageTracking VALUES (3, 1, 1, 20, TO_DATE('2025-05-07', 'YYYY-MM-DD'));
-
--- Example DDL Operation
-ALTER TABLE MedicalSupplies ADD (SupplierRating NUMBER DEFAULT 0);
-
--- Testing Procedure
+-- Test the FetchPropertySize procedure
 DECLARE
-    v_Quantity NUMBER;
+    v_Size NUMBER;
 BEGIN
-    SupplyChain_Pkg.FetchInventoryStatus(1, v_Quantity);
-    DBMS_OUTPUT.PUT_LINE('Quantity in Stock: ' || v_Quantity);
+    LandRegistry_Pkg.FetchPropertySize(1, v_Size);
+    DBMS_OUTPUT.PUT_LINE('Size in Square Meters: ' || v_Size);
 END;
 /
+
+-- Test the CalculateTotalValueByOwner function
+DECLARE
+    v_Value NUMBER;
+BEGIN
+    v_Value := LandRegistry_Pkg.CalculateTotalValueByOwner(1);
+    DBMS_OUTPUT.PUT_LINE('Total Assessed Property Value: ' || v_Value);
+END;
+/
+-- Insert new land valuation
+INSERT INTO LandValuation VALUES (3, 1, 18000000, TO_DATE('2025-05-25', 'YYYY-MM-DD'));
+-- Add new column to track registration status
+ALTER TABLE Properties ADD (RegistrationStatus VARCHAR2(20) DEFAULT 'Pending');
+
 ```
 
 ## Results
