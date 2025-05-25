@@ -22,8 +22,10 @@ Lack of a centralized, efficient, and secure system for managing land and proper
 - **Phase VII**: Implemented triggers and auditing for security.
 - **Phase VIII**: Compiled documentation and presentation.
 
-## 📸 Screenshots
-- **ER Diagram**: ![er diagram](https://github.com/user-attachments/assets/d62b6318-d76f-45aa-8de5-9856213c2957)
+
+
+- **ER Diagram**: ## 📸 Screenshots![Screenshot 2025-05-25 113012](https://github.com/user-attachments/assets/4f480d8c-e99a-4fe1-9015-d9bb918eced6)
+
 - This Entity-Relationship (ER) Diagram outlines a structured database for managing medical supplies in a healthcare setting. It tracks procurement, inventory, and usage across departments.
 - Key Relationships:
 - Vendors → Purchase Orders → Order Details → Medical Supplies → Inventory (procurement & stock flow).
